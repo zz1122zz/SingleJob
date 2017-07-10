@@ -7,8 +7,10 @@ import org.redisson.api.RedissonClient;
 public class RedissonExcutionResponseCache implements ExcutionResponseCache<Object, Object> {
     private static final String SINGLE_JOB_REDISSON_EXCUTION_RESPONSE_CACHE = "SJRespCache_";
     RedissonClient redissonClient;
+    private long surviveTime;
+    private TimeUnit surviveTimeUnit;
 
-    public RedissonExcutionResponseCache(RedissonClient redissonClient) {
+    public RedissonExcutionResponseCache(RedissonClient redissonClient, long surviveTime, TimeUnit surviveTimeUnit) {
         this.redissonClient = redissonClient;
     }
 
@@ -20,7 +22,7 @@ public class RedissonExcutionResponseCache implements ExcutionResponseCache<Obje
     @Override
     public void put(Object t, Object g) {
         redissonClient.getMap(SINGLE_JOB_REDISSON_EXCUTION_RESPONSE_CACHE+t.toString()).put(t, g);
-        redissonClient.getMap(SINGLE_JOB_REDISSON_EXCUTION_RESPONSE_CACHE+t.toString()).expire(100, TimeUnit.SECONDS);
+        redissonClient.getMap(SINGLE_JOB_REDISSON_EXCUTION_RESPONSE_CACHE+t.toString()).expire(surviveTime,surviveTimeUnit);
     }
 
 }

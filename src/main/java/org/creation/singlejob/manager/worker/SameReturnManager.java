@@ -9,6 +9,8 @@ public class SameReturnManager  extends AbstrcatSingleJobManager {
 
     private Object resp = null;
     
+    private boolean getResp = false;
+    
     public SameReturnManager(boolean readCacheIfExist) {
         super(readCacheIfExist);
         // TODO Auto-generated constructor stub
@@ -28,6 +30,7 @@ public class SameReturnManager  extends AbstrcatSingleJobManager {
     @Override
     public void pizzaDeliverd(Object resp) {
         this.resp=resp;
+        this.getResp=true;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class SameReturnManager  extends AbstrcatSingleJobManager {
         {
             this.wait(1000000);
         }
-        if(null!=resp)
+        if(getResp)
         {
             return resp;
         }else
