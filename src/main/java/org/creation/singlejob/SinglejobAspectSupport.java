@@ -54,7 +54,7 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
         boolean readCacheIfExist = annotation.readCacheIfExist();
 
         SingleJobDataPersistenceProvider persistenceProvider = (SingleJobDataPersistenceProvider) determineBean(
-                annotation.SingleJobDataPersistenceProvider(), SingleJobDataPersistenceProvider.class, null);
+                annotation.singleJobDataPersistenceProvider(), SingleJobDataPersistenceProvider.class, null);
         
         SingleJobManager jobManager = null;
         if (annotation.singleJobPolicy().equals(SingleJobPolicy.REJECT)) {

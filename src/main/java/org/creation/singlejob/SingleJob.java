@@ -15,9 +15,9 @@ public @interface SingleJob {
     
     String keyGenerator() default "";
     
-    String SingleJobDataPersistenceProvider() default "";
+    String singleJobDataPersistenceProvider() default "";
     
-    SingleJobPolicy singleJobPolicy() default SingleJobPolicy.WAIT_IN_QUENE_AND_USE_SAME_RETURN;
+    SingleJobPolicy singleJobPolicy() default SingleJobPolicy.WAIT_IN_QUENE_TO_PROCEED;
     
     boolean readCacheIfExist() default false;
 

@@ -1,6 +1,7 @@
 package org.creation.singlejob.manager.singlejobpool;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.creation.singlejob.manager.SingleJobManager;
 
@@ -20,7 +21,7 @@ public class LocalHashMapSingleJobPool implements SingleJobPool<String, SingleJo
         return instance;
     }
 
-    static protected ConcurrentHashMap<String, SingleJobManager> currentJobPool = new ConcurrentHashMap<String, SingleJobManager>();
+    static protected ConcurrentHashMap<String, ReentrantLock> currentJobPool = new ConcurrentHashMap<String, ReentrantLock>();
 
     @Override
     public synchronized boolean removeFromJobPool(String key) {
@@ -35,11 +36,12 @@ public class LocalHashMapSingleJobPool implements SingleJobPool<String, SingleJo
 
     @Override
     public synchronized boolean putIntoExecutorPool(String key, SingleJobManager worker) {
+        ReentrantLock lock = new ReentrantLock();lock.lock();
         if (currentJobPool.containsKey(key)) {
             return false;
         }
         else {
-            currentJobPool.put(key, worker);
+            currentJobPool.put(key, lock);
             return true;
         }
     }

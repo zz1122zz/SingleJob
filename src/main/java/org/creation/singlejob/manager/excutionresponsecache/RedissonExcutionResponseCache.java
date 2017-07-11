@@ -12,6 +12,8 @@ public class RedissonExcutionResponseCache implements ExcutionResponseCache<Obje
 
     public RedissonExcutionResponseCache(RedissonClient redissonClient, long surviveTime, TimeUnit surviveTimeUnit) {
         this.redissonClient = redissonClient;
+        this.surviveTime = surviveTime;
+        this.surviveTimeUnit = surviveTimeUnit;
     }
 
     @Override
