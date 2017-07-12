@@ -21,12 +21,20 @@ public class LocalHashMapSingleJobPool implements SingleJobPool<String, SingleJo
         return instance;
     }
 
-    static protected ConcurrentHashMap<String, ReentrantLock> currentJobPool = new ConcurrentHashMap<String, ReentrantLock>();
+    //做记录用
+    //static private ConcurrentHashMap<String, SingleJobManager> currentJobPool = new ConcurrentHashMap<String, SingleJobManager>();
+    //可重入锁对象
+    static private ConcurrentHashMap<String, ReentrantLock> currentLockPool = new ConcurrentHashMap<String, ReentrantLock>();
 
     @Override
     public synchronized boolean removeFromJobPool(String key) {
-        if (currentJobPool.containsKey(key)) {
-            currentJobPool.remove(key);
+        if (currentLockPool.containsKey(key)) {
+            currentLockPool.get(key).unlock();
+            if(currentLockPool.get(key).getHoldCount()==0)
+            {
+                currentLockPool.remove(key);
+                //currentJobPool.remove(key);
+            }
             return true;
         }
         else {
@@ -36,12 +44,14 @@ public class LocalHashMapSingleJobPool implements SingleJobPool<String, SingleJo
 
     @Override
     public synchronized boolean putIntoExecutorPool(String key, SingleJobManager worker) {
-        ReentrantLock lock = new ReentrantLock();lock.lock();
-        if (currentJobPool.containsKey(key)) {
-            return false;
+        if (currentLockPool.containsKey(key)) {
+            return currentLockPool.get(key).tryLock();
         }
         else {
-            currentJobPool.put(key, lock);
+            ReentrantLock lock = new ReentrantLock();
+            lock.lock();
+            currentLockPool.put(key, lock);
+            //currentJobPool.put(key, worker);
             return true;
         }
     }
