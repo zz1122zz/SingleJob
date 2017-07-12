@@ -59,7 +59,7 @@ public abstract class AbstrcatSingleJobManager implements SingleJobManager  {
             Object resp;
             try {
                 resp = invocation.proceedWithInvocation();
-                if(null!=resp)
+                if(readCacheIfExist&&null!=resp)
                 {
                     respCache.put(uniqueKey, resp);
                 }

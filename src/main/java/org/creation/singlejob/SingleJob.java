@@ -10,6 +10,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface SingleJob {
+    /**	
+     * Member Description
+     */
+    
+    public static final String SINGLE_JOB_DEFAULT_LOCK = "SingleJobDefaultLock";
+
+    SingleJobType type() default SingleJobType.LOCK_BY_METHOD;
+    
+    String lockName() default SINGLE_JOB_DEFAULT_LOCK;
     
     String distinction() default "";
     

@@ -23,7 +23,12 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
     protected String methodIdentification(Method method) {
-        return method.getDeclaringClass().getName() + "." + method.getName();
+        return new StringBuffer().append(SingleJobType.METHOD_STR).append(method.getDeclaringClass().getName())
+                .append(".").append(method.getName()).append(".").toString();
+    }
+
+    protected String locknameIdentification(String lockName) {
+        return new StringBuffer().append(SingleJobType.LOCKNAME_STR).append(lockName).append(".").toString();
     }
 
     public Object invokeWithSinglejobControl(ProceedingJoinPoint point, Method method,
@@ -31,10 +36,11 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
 
         SingleJob annotation = method.getAnnotation(SingleJob.class);
 
-        String joinpointIdentification = methodIdentification(method);
+        String joinpointIdentification = determineIdentification(annotation, method);
 
         SingleJobKeyGenerator keyGenerator = (SingleJobKeyGenerator) determineBean(annotation.keyGenerator(),
                 SingleJobKeyGenerator.class, SimpleSingleJobKeyGenerator.getInstance());
+
         String paramsIdentification = keyGenerator.generate(annotation.distinction(), method, point.getArgs());
 
         String uniqueKey = joinpointIdentification + paramsIdentification;
@@ -50,31 +56,39 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
         }
     }
 
+    private String determineIdentification(SingleJob annotation, Method method) {
+        if (annotation.type().equals(SingleJobType.LOCK_BY_METHOD)) {
+            return methodIdentification(method);
+        }
+        else if (annotation.type().equals(SingleJobType.LOCK_BY_CUSTOM_LOCKNAME)) {
+            return locknameIdentification(annotation.lockName());
+        }
+        return methodIdentification(method);
+    }
+
     private SingleJobManager determineSingleJobManager(SingleJob annotation) throws Exception {
         boolean readCacheIfExist = annotation.readCacheIfExist();
 
         SingleJobDataPersistenceProvider persistenceProvider = (SingleJobDataPersistenceProvider) determineBean(
                 annotation.singleJobDataPersistenceProvider(), SingleJobDataPersistenceProvider.class, null);
-        
+
         SingleJobManager jobManager = null;
         if (annotation.singleJobPolicy().equals(SingleJobPolicy.REJECT)) {
             jobManager = new RejectManager(readCacheIfExist);
         }
         else if (annotation.singleJobPolicy().equals(SingleJobPolicy.WAIT_IN_QUENE_AND_USE_SAME_RETURN)) {
-            if(null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider)
-            {
+            if (null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider) {
                 jobManager = new RedissonSameReturnManager(readCacheIfExist);
-            }else
-            {
+            }
+            else {
                 jobManager = new SameReturnManager(readCacheIfExist);
             }
         }
         else if (annotation.singleJobPolicy().equals(SingleJobPolicy.WAIT_IN_QUENE_TO_PROCEED)) {
-            if(null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider)
-            {
+            if (null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider) {
                 jobManager = new RedissonHoldManager(readCacheIfExist);
-            }else
-            {
+            }
+            else {
                 jobManager = new HoldManager(readCacheIfExist);
             }
         }
