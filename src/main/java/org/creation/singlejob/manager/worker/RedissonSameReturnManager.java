@@ -1,6 +1,7 @@
 package org.creation.singlejob.manager.worker;
 
 import org.creation.singlejob.manager.observerpool.RedissonObserverPool;
+import org.redisson.client.RedisException;
 
 public class RedissonSameReturnManager extends SameReturnManager {
     
@@ -13,7 +14,11 @@ public class RedissonSameReturnManager extends SameReturnManager {
     public void callObservers(String uniqueKey, Object resp) {
         if(observerPool instanceof RedissonObserverPool)
         {
-            ((RedissonObserverPool)observerPool).publish(uniqueKey, resp);
+            try {
+                ((RedissonObserverPool)observerPool).publish(uniqueKey, resp);
+            } catch (RedisException e) {
+                super.callObservers(uniqueKey, resp);
+            }
         }
     }
 }

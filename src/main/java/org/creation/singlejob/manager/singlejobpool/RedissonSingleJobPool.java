@@ -4,8 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.creation.singlejob.manager.SingleJobManager;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisException;
 
-public class RedissonSingleJobPool implements SingleJobPool<String , SingleJobManager> {
+public class RedissonSingleJobPool extends LocalHashMapSingleJobPool {
     
     RedissonClient redissonClient;
     private long leaseTime;
@@ -26,7 +27,10 @@ public class RedissonSingleJobPool implements SingleJobPool<String , SingleJobMa
     public boolean putIntoExecutorPool(String key, SingleJobManager worker) {
         try {
             return redissonClient.getLock(key).tryLock(0, leaseTime, unit);
-        } catch (InterruptedException e) {
+        } catch (RedisException e) {
+            //判定为redis服务不可用，决定降级
+            return super.putIntoExecutorPool(key, worker);
+        }catch (InterruptedException e) {
             //超时时间为0，即立马返回失败
             return false;
         }
@@ -36,6 +40,9 @@ public class RedissonSingleJobPool implements SingleJobPool<String , SingleJobMa
     public boolean removeFromJobPool(String key) {
         try {
             redissonClient.getLock(key).unlock();
+        }catch (RedisException e) {
+            //判定为redis服务不可用，决定降级
+            return super.removeFromJobPool(key);
         } catch (Exception e) {
             return false;
         }

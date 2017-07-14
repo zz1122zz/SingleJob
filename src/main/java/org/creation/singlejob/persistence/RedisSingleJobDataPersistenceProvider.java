@@ -11,7 +11,9 @@ import org.creation.singlejob.manager.singlejobpool.RedissonSingleJobPool;
 import org.creation.singlejob.manager.singlejobpool.SingleJobPool;
 import org.redisson.api.RedissonClient;
 
-public class RedisSingleJobDataPersistenceProvider implements SingleJobDataPersistenceProvider {
+public class RedisSingleJobDataPersistenceProvider extends LocalMemoryDataPersistenceProvider {
+    
+    public boolean useLocalMemoryCache = false;
 
     RedissonClient redissonClient;
     private long leaseTime = 10;
@@ -32,6 +34,10 @@ public class RedisSingleJobDataPersistenceProvider implements SingleJobDataPersi
 
     @Override
     public ExcutionResponseCache<Object, Object> initlExcutionResponseCache() {
+        if(useLocalMemoryCache)
+        {
+            return super.initlExcutionResponseCache();
+        }
         return new RedissonExcutionResponseCache(redissonClient, surviveTime,surviveTimeUnit);
     }
 

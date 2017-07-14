@@ -8,7 +8,7 @@ import org.creation.singlejob.manager.SingleJobManager;
 public class LocalHashMapSingleJobPool implements SingleJobPool<String, SingleJobManager> {
     private static LocalHashMapSingleJobPool instance;
 
-    private LocalHashMapSingleJobPool() {
+    protected LocalHashMapSingleJobPool() {
     }
 
     public static LocalHashMapSingleJobPool getInstance() { // 对获取实例的方法进行同步
