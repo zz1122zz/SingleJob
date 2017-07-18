@@ -11,8 +11,11 @@ import org.creation.singlejob.manager.worker.RedissonHoldManager;
 import org.creation.singlejob.manager.worker.RedissonSameReturnManager;
 import org.creation.singlejob.manager.worker.RejectManager;
 import org.creation.singlejob.manager.worker.SameReturnManager;
+import org.creation.singlejob.manager.worker.ZooKeeperHoldManager;
+import org.creation.singlejob.manager.worker.ZooKeeperSameReturnManager;
 import org.creation.singlejob.persistence.RedisSingleJobDataPersistenceProvider;
 import org.creation.singlejob.persistence.SingleJobDataPersistenceProvider;
+import org.creation.singlejob.persistence.ZooKeeperSingleJobDataPersistenceProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -79,6 +82,9 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
         else if (annotation.singleJobPolicy().equals(SingleJobPolicy.WAIT_IN_QUENE_AND_USE_SAME_RETURN)) {
             if (null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider) {
                 jobManager = new RedissonSameReturnManager(readCacheIfExist);
+            }else if(null != persistenceProvider && persistenceProvider instanceof ZooKeeperSingleJobDataPersistenceProvider)
+            {
+                jobManager =new ZooKeeperSameReturnManager(readCacheIfExist);
             }
             else {
                 jobManager = new SameReturnManager(readCacheIfExist);
@@ -87,6 +93,9 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
         else if (annotation.singleJobPolicy().equals(SingleJobPolicy.WAIT_IN_QUENE_TO_PROCEED)) {
             if (null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider) {
                 jobManager = new RedissonHoldManager(readCacheIfExist);
+            }else if(null != persistenceProvider && persistenceProvider instanceof ZooKeeperSingleJobDataPersistenceProvider)
+            {
+                jobManager =new ZooKeeperHoldManager(readCacheIfExist);
             }
             else {
                 jobManager = new HoldManager(readCacheIfExist);
