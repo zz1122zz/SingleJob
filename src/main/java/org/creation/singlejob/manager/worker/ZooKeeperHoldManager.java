@@ -1,7 +1,8 @@
 package org.creation.singlejob.manager.worker;
 
-import org.apache.zookeeper.KeeperException;
+import org.creation.singlejob.manager.observerpool.RedissonObserverPool;
 import org.creation.singlejob.manager.observerpool.ZooKeeperObserverPool;
+import org.redisson.client.RedisException;
 
 public class ZooKeeperHoldManager extends HoldManager {
 
@@ -12,15 +13,12 @@ public class ZooKeeperHoldManager extends HoldManager {
     
     @Override
     public void callObservers(String uniqueKey, Object resp) {
-        if(observerPool instanceof ZooKeeperObserverPool)
+        if(observerPool instanceof RedissonObserverPool)
         {
             try {
                 ((ZooKeeperObserverPool)observerPool).publish(uniqueKey, resp);
-            } catch (KeeperException e) {
+            } catch (RedisException e) {
                 super.callObservers(uniqueKey, resp);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
         }
     }

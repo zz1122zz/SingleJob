@@ -2,7 +2,6 @@ package org.creation.singlejob.manager.observerpool;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.WatchedEvent;
 import org.creation.singlejob.manager.SingleJobManager;
 
@@ -41,11 +40,6 @@ public class ZooKeeperObserverPool extends LocalConcurrentHashMapObserverPool {
     public boolean putMeIntoObserverPool(String key, final SingleJobManager g) {
         final String path = PATH_PRIFIX.concat(key);
         try {
-            try {
-                zooKeeperClient.create().creatingParentsIfNeeded().forPath(path, JSON.toJSONBytes(g));
-            } catch (NodeExistsException e) {
-                //节点已经存在，视为创建成功。
-            }
             zooKeeperClient.getData().usingWatcher(new CuratorWatcher() {
                 @Override
                 public void process(WatchedEvent event) throws Exception {
@@ -62,13 +56,13 @@ public class ZooKeeperObserverPool extends LocalConcurrentHashMapObserverPool {
         }
     }
 
-    public void publish(String key, Object resp) throws Exception {
+    public void publish(String key, Object resp) {
         String path = PATH_PRIFIX.concat(key);
         try {
-            zooKeeperClient.create().creatingParentsIfNeeded().forPath(path, JSON.toJSONBytes(resp));
-        } catch (NodeExistsException e) {
-            //节点已经存在，改作修改
             zooKeeperClient.setData().forPath(path, JSON.toJSONBytes(resp));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

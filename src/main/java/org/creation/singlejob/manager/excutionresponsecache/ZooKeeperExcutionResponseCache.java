@@ -3,7 +3,6 @@ package org.creation.singlejob.manager.excutionresponsecache;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.zookeeper.KeeperException.NodeExistsException;
 
 import com.alibaba.fastjson.JSON;
 
@@ -67,12 +66,8 @@ public class ZooKeeperExcutionResponseCache extends LocalExcutionResponseCache {
     public void put(Object t, Object g) {
         String path = PATH_PRIFIX.concat(t.toString());
         try {
-            try {
-                zooKeeperClient.create().creatingParentsIfNeeded().forPath(path, JSON.toJSONBytes(g));
-            } catch (NodeExistsException e) {
-                zooKeeperClient.setData().forPath(path, JSON.toJSONBytes(g));
-            }
-        }  catch (Exception e) {
+            zooKeeperClient.create().creatingParentsIfNeeded().forPath(path, JSON.toJSONBytes(g));
+        } catch (Exception e) {
             super.put(t, g);
         }
     }

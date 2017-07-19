@@ -28,8 +28,6 @@ public class ZooKeeperSingleJobPool extends LocalHashMapSingleJobPool{
     private static final String PATH_PRIFIX = "/SJLockPool/";
 
     CuratorFramework zooKeeperClient;
-
-    private InterProcessMutex lock;
     
     /**
      * @param zooKeeperClient
@@ -43,9 +41,8 @@ public class ZooKeeperSingleJobPool extends LocalHashMapSingleJobPool{
     @Override
     public boolean putIntoExecutorPool(String key, SingleJobManager worker) {
         final String path = PATH_PRIFIX.concat(key);
-        lock = new InterProcessMutex(zooKeeperClient, path);
         try {
-            return lock.acquire(0, TimeUnit.MILLISECONDS);
+            return new InterProcessMutex(zooKeeperClient, path).acquire(0, TimeUnit.MILLISECONDS);
         }catch (InterruptedException e) {
             //超时时间为0，即立马返回失败
             return false;
@@ -57,13 +54,9 @@ public class ZooKeeperSingleJobPool extends LocalHashMapSingleJobPool{
 
     @Override
     public boolean removeFromJobPool(String key) {
+        final String path = PATH_PRIFIX.concat(key);
         try {
-            if(lock !=null){
-                lock.release();
-            }else
-            {
-                return false;
-            }
+            new InterProcessMutex(zooKeeperClient, path).release();
         }catch (RedisException e) {
             //判定为redis服务不可用，决定降级
             return super.removeFromJobPool(key);
