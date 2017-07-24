@@ -1,6 +1,7 @@
 package org.creation.singlejob.manager.worker;
 
 import org.creation.singlejob.SinglejobAspectSupport.InvocationCallback;
+import org.creation.singlejob.exception.WaitingOverTimeException;
 import org.creation.singlejob.manager.AbstrcatSingleJobManager;
 import org.creation.singlejob.manager.SingleJobManager;
 
@@ -46,7 +47,7 @@ public class HoldManager extends AbstrcatSingleJobManager {
             return proceedWithInvocation(uniqueKey, invocation);
         }
         else {
-            throw new Exception();
+            throw new WaitingOverTimeException(uniqueKey);
         }
     }
 
