@@ -15,6 +15,13 @@ public class SameReturnManager  extends AbstrcatSingleJobManager {
         super(readCacheIfExist);
         // TODO Auto-generated constructor stub
     }
+
+    protected long maxWaitMilliSecond = 10000;
+    
+    public SameReturnManager(boolean readCacheIfExist,long maxWaitMilliSecond) {
+        super(readCacheIfExist);
+        this.maxWaitMilliSecond = maxWaitMilliSecond;
+    }
     
     @Override
     public void callObservers(String uniqueKey, Object resp) {
@@ -38,7 +45,7 @@ public class SameReturnManager  extends AbstrcatSingleJobManager {
         putMeIntoObserverPool(uniqueKey,this);
         synchronized(this)
         {
-            this.wait(1000000);
+            this.wait(maxWaitMilliSecond);
         }
         if(getResp)
         {

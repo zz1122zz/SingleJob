@@ -10,6 +10,11 @@ public class RedissonSameReturnManager extends SameReturnManager {
         // TODO Auto-generated constructor stub
     }
     
+    public RedissonSameReturnManager(boolean readCacheIfExist,long maxWaitMilliSecond) {
+        super(readCacheIfExist,maxWaitMilliSecond);
+        // TODO Auto-generated constructor stub
+    }
+    
     @Override
     public void callObservers(String uniqueKey, Object resp) {
         if(observerPool instanceof RedissonObserverPool)

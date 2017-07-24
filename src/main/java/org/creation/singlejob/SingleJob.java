@@ -28,6 +28,8 @@ public @interface SingleJob {
     
     SingleJobPolicy singleJobPolicy() default SingleJobPolicy.WAIT_IN_QUENE_TO_PROCEED;
     
+    long maxWaitMilliSecond() default 2000;
+    
     boolean readCacheIfExist() default false;
 
 }

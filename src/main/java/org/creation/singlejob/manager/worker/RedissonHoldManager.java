@@ -10,6 +10,11 @@ public class RedissonHoldManager extends HoldManager {
         // TODO Auto-generated constructor stub
     }
     
+    public RedissonHoldManager(boolean readCacheIfExist,long maxWaitMilliSecond) {
+        super(readCacheIfExist,maxWaitMilliSecond);
+        // TODO Auto-generated constructor stub
+    }
+    
     @Override
     public void callObservers(String uniqueKey, Object resp) {
         if(observerPool instanceof RedissonObserverPool)

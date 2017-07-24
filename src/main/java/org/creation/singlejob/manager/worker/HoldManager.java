@@ -5,10 +5,17 @@ import org.creation.singlejob.manager.AbstrcatSingleJobManager;
 import org.creation.singlejob.manager.SingleJobManager;
 
 public class HoldManager extends AbstrcatSingleJobManager {
-
+    
     public HoldManager(boolean readCacheIfExist) {
         super(readCacheIfExist);
         // TODO Auto-generated constructor stub
+    } 
+
+    protected long maxWaitMilliSecond = 10000;
+    
+    public HoldManager(boolean readCacheIfExist,long maxWaitMilliSecond) {
+        super(readCacheIfExist);
+        this.maxWaitMilliSecond = maxWaitMilliSecond;
     }
 
     private boolean isMyShow = false;
@@ -33,7 +40,7 @@ public class HoldManager extends AbstrcatSingleJobManager {
     protected Object handleConflict(String uniqueKey, InvocationCallback invocation) throws Throwable {
         putMeIntoObserverPool(uniqueKey, this);
         synchronized (this) {
-            this.wait(100000);
+            this.wait(maxWaitMilliSecond);
         }
         if (isMyShow) {
             return proceedWithInvocation(uniqueKey, invocation);
