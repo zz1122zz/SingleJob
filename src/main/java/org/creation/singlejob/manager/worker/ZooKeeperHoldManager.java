@@ -10,6 +10,11 @@ public class ZooKeeperHoldManager extends HoldManager {
         // TODO Auto-generated constructor stub
     }
     
+    public ZooKeeperHoldManager(boolean readCacheIfExist,long maxWaitMilliSecond) {
+        super(readCacheIfExist,maxWaitMilliSecond);
+        // TODO Auto-generated constructor stub
+    }
+    
     @Override
     public void callObservers(String uniqueKey, Object resp) {
         if(observerPool instanceof ZooKeeperObserverPool)

@@ -10,6 +10,11 @@ public class ZooKeeperSameReturnManager extends SameReturnManager {
         // TODO Auto-generated constructor stub
     }
     
+    public ZooKeeperSameReturnManager(boolean readCacheIfExist,long maxWaitMilliSecond) {
+        super(readCacheIfExist,maxWaitMilliSecond);
+        // TODO Auto-generated constructor stub
+    }
+    
     @Override
     public void callObservers(String uniqueKey, Object resp) {
         if(observerPool instanceof ZooKeeperObserverPool)

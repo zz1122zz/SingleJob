@@ -71,6 +71,7 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
 
     private SingleJobManager determineSingleJobManager(SingleJob annotation) throws Exception {
         boolean readCacheIfExist = annotation.readCacheIfExist();
+        long maxWaitMilliSecond = annotation.maxWaitMilliSecond();
 
         SingleJobDataPersistenceProvider persistenceProvider = (SingleJobDataPersistenceProvider) determineBean(
                 annotation.singleJobDataPersistenceProvider(), SingleJobDataPersistenceProvider.class, null);
@@ -81,24 +82,26 @@ public class SinglejobAspectSupport implements ApplicationContextAware {
         }
         else if (annotation.singleJobPolicy().equals(SingleJobPolicy.WAIT_IN_QUENE_AND_USE_SAME_RETURN)) {
             if (null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider) {
-                jobManager = new RedissonSameReturnManager(readCacheIfExist);
-            }else if(null != persistenceProvider && persistenceProvider instanceof ZooKeeperSingleJobDataPersistenceProvider)
-            {
-                jobManager =new ZooKeeperSameReturnManager(readCacheIfExist);
+                jobManager = new RedissonSameReturnManager(readCacheIfExist, maxWaitMilliSecond);
+            }
+            else if (null != persistenceProvider
+                    && persistenceProvider instanceof ZooKeeperSingleJobDataPersistenceProvider) {
+                jobManager = new ZooKeeperSameReturnManager(readCacheIfExist, maxWaitMilliSecond);
             }
             else {
-                jobManager = new SameReturnManager(readCacheIfExist);
+                jobManager = new SameReturnManager(readCacheIfExist, maxWaitMilliSecond);
             }
         }
         else if (annotation.singleJobPolicy().equals(SingleJobPolicy.WAIT_IN_QUENE_TO_PROCEED)) {
             if (null != persistenceProvider && persistenceProvider instanceof RedisSingleJobDataPersistenceProvider) {
-                jobManager = new RedissonHoldManager(readCacheIfExist);
-            }else if(null != persistenceProvider && persistenceProvider instanceof ZooKeeperSingleJobDataPersistenceProvider)
-            {
-                jobManager =new ZooKeeperHoldManager(readCacheIfExist);
+                jobManager = new RedissonHoldManager(readCacheIfExist, maxWaitMilliSecond);
+            }
+            else if (null != persistenceProvider
+                    && persistenceProvider instanceof ZooKeeperSingleJobDataPersistenceProvider) {
+                jobManager = new ZooKeeperHoldManager(readCacheIfExist, maxWaitMilliSecond);
             }
             else {
-                jobManager = new HoldManager(readCacheIfExist);
+                jobManager = new HoldManager(readCacheIfExist, maxWaitMilliSecond);
             }
         }
         else {
